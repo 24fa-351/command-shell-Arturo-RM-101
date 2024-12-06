@@ -36,6 +36,9 @@ void break_into_words (char* command, char* words[], char delimiter) {
 
 int main(int argc, char *argv[]) {
     char line[1000];
+    int output_fd = -1;
+    int input_fd = -1;
+    char absolute_path_to_command[1000];
     //char command = argv[2];
 
     //split(argv[2], words, ' ');
@@ -58,6 +61,49 @@ int main(int argc, char *argv[]) {
             printf("'%s'\n", words[ix]);
         }
 
+
+
+        for (int ix = 0; words[ix] != NULL; ix++) {
+            if (strcmp(words[ix], ">") == 0) {
+                printf("Found >\n");
+                /*int output_fd = open(argv[1], O_RDONLY | O_CREAT, S_IRUSR | S_IWUSR);
+                if (output_fd == -1) {
+                    fprintf(stderr, "Failed to open %s\n", argv[1]);
+                    return 1;
+                int pid = fork();
+                if (pid == 0) {
+                    dup2(output_fd, STDOUT_FILENO);
+                    close(output_fd);
+                    execve(absolute_path_to_command, words, NULL);
+                    printf("Unable to execute: %s", absolute_path_to_command);
+                    _exit(1);
+                else {
+                    wait(NULL);
+                }
+                }*/
+            } else if (strcmp(words[ix], "<") == 0) {
+                printf("Found <\n");
+                /*int input_fd = open(argv[3], O_WRONLY | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR);
+                if (input_fd == -1) {
+                    fprintf(stderr, "Failed to open %s\n", argv[3]);
+                    return 1;
+                int pid = fork();
+                if (pid == 0) {
+                    dup2(input_fd, STDIN_FILENO);
+                    close(input_fd);
+                    execve(absolute_path_to_command, words, NULL);
+                    printf("Unable to execute: %s", absolute_path_to_command);
+                    _exit(1);
+                else {
+                    wait(NULL);
+                }
+                }*/
+            } else if (strcmp(words[ix], ">>") == 0) {
+                printf("Found >>\n");
+            } else {
+                continue;
+            }
+        }
         // This is where we'll be splitting our fgets() into cmds and args
         // Step 1: Get to break words (get it from redirect stream program, as well as finding absolute path from lecture)
 
