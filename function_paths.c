@@ -3,6 +3,10 @@
 #include <string.h>
 #include <unistd.h>
 #include <stdbool.h>
+#include <fcntl.h>
+#include <sys/wait.h>
+
+#include "function_paths.h"
 
 void add_character_to_string (char *string, char character) {
     int length = strlen(string);
@@ -17,6 +21,7 @@ void break_into_words (char* command, char* words[], char delimiter) {
     strcpy(current_word, "");
 
     while (*next_char != '\0') {
+
         if (*next_char == delimiter) {
             // Copy the new word into the child arguments
             words[total_words] = strdup(current_word);
@@ -27,14 +32,18 @@ void break_into_words (char* command, char* words[], char delimiter) {
         } else {
             add_character_to_string(current_word, *next_char);
         }
+
         ++next_char;
+
     }
+
     words[total_words++] = strdup(current_word);
 
     words[total_words] = NULL;
 }
 
 int main(int argc, char *argv[]) {
+
     char line[1000];
     int output_fd = -1;
     int input_fd = -1;
@@ -42,68 +51,41 @@ int main(int argc, char *argv[]) {
     //char command = argv[2];
 
     //split(argv[2], words, ' ');
+    // Move this into a function and call it through 51-54 named "execute shell"
+    // 55-59 
     while(1) {
+
         printf("myshell> ");
         fgets(line, 1000, stdin);
 
         if (line[strlen(line) - 1] == '\n') {
             line[strlen(line) - 1] = '\0';
         }
+        // End of execute command 
+
 
         if (strcmp(line, "exit") == 0 || strcmp(line, "quit") == 0) {
             break;
         }
+
         printf("You got: %s\n", line);
         char* words[1000];
         break_into_words(line, words, ' ');
+
         for(int ix = 0; words[ix] != NULL; ix++) {
             // single quotes help understand with each word
             printf("'%s'\n", words[ix]);
         }
 
-
-
-        for (int ix = 0; words[ix] != NULL; ix++) {
-            if (strcmp(words[ix], ">") == 0) {
-                printf("Found >\n");
-                /*int output_fd = open(argv[1], O_RDONLY | O_CREAT, S_IRUSR | S_IWUSR);
-                if (output_fd == -1) {
-                    fprintf(stderr, "Failed to open %s\n", argv[1]);
-                    return 1;
-                int pid = fork();
-                if (pid == 0) {
-                    dup2(output_fd, STDOUT_FILENO);
-                    close(output_fd);
-                    execve(absolute_path_to_command, words, NULL);
-                    printf("Unable to execute: %s", absolute_path_to_command);
-                    _exit(1);
-                else {
-                    wait(NULL);
-                }
-                }*/
-            } else if (strcmp(words[ix], "<") == 0) {
-                printf("Found <\n");
-                /*int input_fd = open(argv[3], O_WRONLY | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR);
-                if (input_fd == -1) {
-                    fprintf(stderr, "Failed to open %s\n", argv[3]);
-                    return 1;
-                int pid = fork();
-                if (pid == 0) {
-                    dup2(input_fd, STDIN_FILENO);
-                    close(input_fd);
-                    execve(absolute_path_to_command, words, NULL);
-                    printf("Unable to execute: %s", absolute_path_to_command);
-                    _exit(1);
-                else {
-                    wait(NULL);
-                }
-                }*/
-            } else if (strcmp(words[ix], ">>") == 0) {
-                printf("Found >>\n");
-            } else {
-                continue;
-            }
+        char* file_title;
+        if (strcmp(words[2], ">") == 0) {
+            file_title = words[3];
+        } else {
+            file_title = words[1];
         }
+
+        execute_command(words, file_title);
+        
         // This is where we'll be splitting our fgets() into cmds and args
         // Step 1: Get to break words (get it from redirect stream program, as well as finding absolute path from lecture)
 
@@ -111,4 +93,5 @@ int main(int argc, char *argv[]) {
         // Step 3: Delete them if found and redirect them
         // Step 4: Execve the command
     }
+
 }
