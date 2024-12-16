@@ -1,2 +1,2 @@
-cmshell: function_paths.c
-	gcc function_paths.c -o cmshell
+cmshell: function_paths.c execute_command.c
+	gcc function_paths.c execute_command.c -o cmshell
